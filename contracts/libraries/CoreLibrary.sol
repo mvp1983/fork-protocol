@@ -1,6 +1,5 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./WadRayMath.sol";
 
 /**
@@ -9,7 +8,6 @@ import "./WadRayMath.sol";
 * @notice Defines the data structures of the reserves and the user data
 **/
 library CoreLibrary {
-    using SafeMath for uint256;
     using WadRayMath for uint256;
 
     enum InterestRateMode {NONE, STABLE, VARIABLE}
@@ -146,7 +144,7 @@ library CoreLibrary {
     ) internal {
         uint256 amountToLiquidityRatio = _amount.wadToRay().rayDiv(_totalLiquidity.wadToRay());
 
-        uint256 cumulatedLiquidity = amountToLiquidityRatio.add(WadRayMath.ray());
+        uint256 cumulatedLiquidity = amountToLiquidityRatio + WadRayMath.ray();
 
         _self.lastLiquidityCumulativeIndex = cumulatedLiquidity.rayMul(
             _self.lastLiquidityCumulativeIndex
@@ -286,7 +284,7 @@ library CoreLibrary {
                 //no interest cumulation because of the rounding - we add 1 wei
                 //as symbolic cumulated interest to avoid interest free loans.
 
-                return _self.principalBorrowBalance.add(1 wei);
+                return _self.principalBorrowBalance + 1 wei;
             }
         }
 
@@ -307,7 +305,7 @@ library CoreLibrary {
     ) internal {
         uint256 previousTotalBorrowStable = _reserve.totalBorrowsStable;
         //updating reserve borrows stable
-        _reserve.totalBorrowsStable = _reserve.totalBorrowsStable.add(_amount);
+        _reserve.totalBorrowsStable += _amount;
 
         //update the average stable rate
         //weighted average of all the borrows
@@ -316,8 +314,8 @@ library CoreLibrary {
             _reserve.currentAverageStableBorrowRate
         );
 
-        _reserve.currentAverageStableBorrowRate = weightedLastBorrow
-            .add(weightedPreviousTotalBorrows)
+        _reserve.currentAverageStableBorrowRate = (weightedLastBorrow
+            + weightedPreviousTotalBorrows)
             .rayDiv(_reserve.totalBorrowsStable.wadToRay());
     }
 
@@ -338,7 +336,7 @@ library CoreLibrary {
         uint256 previousTotalBorrowStable = _reserve.totalBorrowsStable;
 
         //updating reserve borrows stable
-        _reserve.totalBorrowsStable = _reserve.totalBorrowsStable.sub(_amount);
+        _reserve.totalBorrowsStable -= _amount;
 
         if (_reserve.totalBorrowsStable == 0) {
             _reserve.currentAverageStableBorrowRate = 0; //no income if there are no stable rate borrows
@@ -357,8 +355,7 @@ library CoreLibrary {
             "The amounts to subtract don't match"
         );
 
-        _reserve.currentAverageStableBorrowRate = weightedPreviousTotalBorrows
-            .sub(weightedLastBorrow)
+        _reserve.currentAverageStableBorrowRate = (weightedPreviousTotalBorrows - weightedLastBorrow)
             .rayDiv(_reserve.totalBorrowsStable.wadToRay());
     }
 
@@ -368,7 +365,7 @@ library CoreLibrary {
     * @param _amount the amount to add to the total borrows variable
     **/
     function increaseTotalBorrowsVariable(ReserveData storage _reserve, uint256 _amount) internal {
-        _reserve.totalBorrowsVariable = _reserve.totalBorrowsVariable.add(_amount);
+        _reserve.totalBorrowsVariable += _amount;
     }
 
     /**
@@ -381,7 +378,7 @@ library CoreLibrary {
             _reserve.totalBorrowsVariable >= _amount,
             "The amount that is being subtracted from the variable total borrows is incorrect"
         );
-        _reserve.totalBorrowsVariable = _reserve.totalBorrowsVariable.sub(_amount);
+        _reserve.totalBorrowsVariable -= _amount;
     }
 
     /**
@@ -397,11 +394,11 @@ library CoreLibrary {
         returns (uint256)
     {
         //solium-disable-next-line
-        uint256 timeDifference = block.timestamp.sub(uint256(_lastUpdateTimestamp));
+        uint256 timeDifference = block.timestamp - uint256(_lastUpdateTimestamp);
 
         uint256 timeDelta = timeDifference.wadToRay().rayDiv(SECONDS_PER_YEAR.wadToRay());
 
-        return _rate.rayMul(timeDelta).add(WadRayMath.ray());
+        return _rate.rayMul(timeDelta) + (WadRayMath.ray());
     }
 
     /**
@@ -416,11 +413,11 @@ library CoreLibrary {
         returns (uint256)
     {
         //solium-disable-next-line
-        uint256 timeDifference = block.timestamp.sub(uint256(_lastUpdateTimestamp));
+        uint256 timeDifference = block.timestamp - uint256(_lastUpdateTimestamp);
 
-        uint256 ratePerSecond = _rate.div(SECONDS_PER_YEAR);
+        uint256 ratePerSecond = _rate / SECONDS_PER_YEAR;
 
-        return ratePerSecond.add(WadRayMath.ray()).rayPow(timeDifference);
+        return (ratePerSecond + WadRayMath.ray()).rayPow(timeDifference);
     }
 
     /**
@@ -433,7 +430,7 @@ library CoreLibrary {
         view
         returns (uint256)
     {
-        return _reserve.totalBorrowsStable.add(_reserve.totalBorrowsVariable);
+        return _reserve.totalBorrowsStable + _reserve.totalBorrowsVariable;
     }
 
 }

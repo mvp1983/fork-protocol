@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 import "openzeppelin-solidity/contracts/utils/Address.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
@@ -21,7 +21,7 @@ contract WalletBalanceProvider {
 
     LendingPoolAddressesProvider provider;
 
-    constructor(LendingPoolAddressesProvider _provider) public {
+    constructor(LendingPoolAddressesProvider _provider) {
 
         provider = _provider;
 
@@ -29,7 +29,7 @@ contract WalletBalanceProvider {
     /**
     @dev Fallback function, don't accept any ETH
     **/
-    function() external payable {
+    fallback() external payable {
         revert("WalletBalanceProvider does not accept payments");
     }
 
@@ -41,7 +41,7 @@ contract WalletBalanceProvider {
     **/
     function balanceOf(address _user, address _token) public view returns (uint256) {
         // check if token is actually a contract
-        if (_token.isContract()) {
+        if (_token.code.length > 0) {
             return IERC20(_token).balanceOf(_user);
         } else {
             return 0;

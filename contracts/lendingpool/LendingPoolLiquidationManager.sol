@@ -1,6 +1,5 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 import "openzeppelin-solidity/contracts/utils/Address.sol";
 import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
@@ -21,7 +20,6 @@ import "../interfaces/IPriceOracleGetter.sol";
 * @notice Implements the liquidation function.
 **/
 contract LendingPoolLiquidationManager is ReentrancyGuard, VersionedInitializable {
-    using SafeMath for uint256;
     using WadRayMath for uint256;
     using Address for address;
 
@@ -108,7 +106,7 @@ contract LendingPoolLiquidationManager is ReentrancyGuard, VersionedInitializabl
     * @dev as the contract extends the VersionedInitializable contract to match the state
     * of the LendingPool contract, the getRevision() function is needed.
     */
-    function getRevision() internal pure returns (uint256) {
+    function getRevision() internal pure override returns (uint256) {
         return 0;
     }
 
@@ -176,10 +174,8 @@ contract LendingPoolLiquidationManager is ReentrancyGuard, VersionedInitializabl
         }
 
         //all clear - calculate the max principal amount that can be liquidated
-        vars.maxPrincipalAmountToLiquidate = vars
-            .userCompoundedBorrowBalance
-            .mul(LIQUIDATION_CLOSE_FACTOR_PERCENT)
-            .div(100);
+        vars.maxPrincipalAmountToLiquidate = vars.userCompoundedBorrowBalance * 
+            LIQUIDATION_CLOSE_FACTOR_PERCENT / 100;
 
         vars.actualAmountToLiquidate = _purchaseAmount > vars.maxPrincipalAmountToLiquidate
             ? vars.maxPrincipalAmountToLiquidate
@@ -203,7 +199,7 @@ contract LendingPoolLiquidationManager is ReentrancyGuard, VersionedInitializabl
                 _collateral,
                 _reserve,
                 vars.originationFee,
-                vars.userCollateralBalance.sub(maxCollateralToLiquidate)
+                vars.userCollateralBalance - maxCollateralToLiquidate
             );
         }
 
@@ -247,11 +243,11 @@ contract LendingPoolLiquidationManager is ReentrancyGuard, VersionedInitializabl
             //otherwise receives the underlying asset
             //burn the equivalent amount of atoken
             collateralAtoken.burnOnLiquidation(_user, maxCollateralToLiquidate);
-            core.transferToUser(_collateral, msg.sender, maxCollateralToLiquidate);
+            core.transferToUser(_collateral, payable(msg.sender), maxCollateralToLiquidate);
         }
 
         //transfers the principal currency to the pool
-        core.transferToReserve.value(msg.value)(_reserve, msg.sender, vars.actualAmountToLiquidate);
+        core.transferToReserve{value: msg.value}(_reserve, payable(msg.sender), vars.actualAmountToLiquidate);
 
         if (vars.feeLiquidated > 0) {
             //if there is enough collateral to liquidate the fee, first transfer burn an equivalent amount of
@@ -308,8 +304,6 @@ contract LendingPoolLiquidationManager is ReentrancyGuard, VersionedInitializabl
     * @param _principal the principal currency to be liquidated
     * @param _purchaseAmount the amount of principal being liquidated
     * @param _userCollateralBalance the collatera balance for the specific _collateral asset of the user being liquidated
-    * @return the maximum amount that is possible to liquidated given all the liquidation constraints (user balance, close factor) and
-    * the purchase amount
     **/
     function calculateAvailableCollateralToLiquidate(
         address _collateral,
@@ -330,21 +324,13 @@ contract LendingPoolLiquidationManager is ReentrancyGuard, VersionedInitializabl
 
         //this is the maximum possible amount of the selected collateral that can be liquidated, given the
         //max amount of principal currency that is available for liquidation.
-        vars.maxAmountCollateralToLiquidate = vars
-            .principalCurrencyPrice
-            .mul(_purchaseAmount)
-            .div(vars.collateralPrice)
-            .mul(vars.liquidationBonus)
-            .div(100);
+        vars.maxAmountCollateralToLiquidate = vars.principalCurrencyPrice * _purchaseAmount / 
+            vars.collateralPrice * vars.liquidationBonus / 100;
 
         if (vars.maxAmountCollateralToLiquidate > _userCollateralBalance) {
             collateralAmount = _userCollateralBalance;
-            principalAmountNeeded = vars
-                .collateralPrice
-                .mul(collateralAmount)
-                .div(vars.principalCurrencyPrice)
-                .mul(100)
-                .div(vars.liquidationBonus);
+            principalAmountNeeded = vars.collateralPrice * collateralAmount / vars.principalCurrencyPrice * 
+                100 / vars.liquidationBonus;
         } else {
             collateralAmount = vars.maxAmountCollateralToLiquidate;
             principalAmountNeeded = _purchaseAmount;

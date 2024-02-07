@@ -1,6 +1,5 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 import "openzeppelin-solidity/contracts/utils/Address.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
@@ -25,7 +24,6 @@ import "../libraries/EthAddressLib.sol";
  **/
 
 contract LendingPool is ReentrancyGuard, VersionedInitializable {
-    using SafeMath for uint256;
     using WadRayMath for uint256;
     using Address for address;
 
@@ -266,11 +264,9 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
         _;
     }
 
-    uint256 public constant UINT_MAX_VALUE = uint256(-1);
-
     uint256 public constant LENDINGPOOL_REVISION = 0x3;
 
-    function getRevision() internal pure returns (uint256) {
+    function getRevision() internal pure override returns (uint256) {
         return LENDINGPOOL_REVISION;
     }
 
@@ -314,7 +310,7 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
         aToken.mintOnDeposit(msg.sender, _amount);
 
         //transfer to the core contract
-        core.transferToReserve.value(msg.value)(_reserve, msg.sender, _amount);
+        core.transferToReserve{value: msg.value}(_reserve, payable(msg.sender), _amount);
 
         //solium-disable-next-line
         emit Deposit(_reserve, msg.sender, _amount, _referralCode, block.timestamp);
@@ -476,7 +472,7 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
             //calculate the max available loan size in stable rate mode as a percentage of the
             //available liquidity
             uint256 maxLoanPercent = parametersProvider.getMaxStableRateBorrowSizePercent();
-            uint256 maxLoanSizeStable = vars.availableLiquidity.mul(maxLoanPercent).div(100);
+            uint256 maxLoanSizeStable = vars.availableLiquidity * maxLoanPercent / 100;
 
             require(
                 _amount <= maxLoanSizeStable,
@@ -494,7 +490,7 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
         );
 
         //if we reached this point, we can transfer
-        core.transferToUser(_reserve, msg.sender, _amount);
+        core.transferToUser(_reserve, payable(msg.sender), _amount);
 
         emit Borrow(
             _reserve,
@@ -552,14 +548,14 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
         require(vars.compoundedBorrowBalance > 0, "The user does not have any borrow pending");
 
         require(
-            _amount != UINT_MAX_VALUE || msg.sender == _onBehalfOf,
+            _amount != type(uint256).max || msg.sender == _onBehalfOf,
             "To repay on behalf of an user an explicit amount to repay is needed."
         );
 
         //default to max amount
-        vars.paybackAmount = vars.compoundedBorrowBalance.add(vars.originationFee);
+        vars.paybackAmount = vars.compoundedBorrowBalance + vars.originationFee;
 
-        if (_amount != UINT_MAX_VALUE && _amount < vars.paybackAmount) {
+        if (_amount != type(uint256).max && _amount < vars.paybackAmount) {
             vars.paybackAmount = _amount;
         }
 
@@ -579,7 +575,7 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
                 false
             );
 
-            core.transferToFeeCollectionAddress.value(vars.isETH ? vars.paybackAmount : 0)(
+            core.transferToFeeCollectionAddress{value: (vars.isETH ? vars.paybackAmount : 0)}(
                 _reserve,
                 _onBehalfOf,
                 vars.paybackAmount,
@@ -599,7 +595,7 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
             return;
         }
 
-        vars.paybackAmountMinusFees = vars.paybackAmount.sub(vars.originationFee);
+        vars.paybackAmountMinusFees = vars.paybackAmount - vars.originationFee;
 
         core.updateStateOnRepay(
             _reserve,
@@ -612,20 +608,20 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
 
         //if the user didn't repay the origination fee, transfer the fee to the fee collection address
         if(vars.originationFee > 0) {
-            core.transferToFeeCollectionAddress.value(vars.isETH ? vars.originationFee : 0)(
+            core.transferToFeeCollectionAddress{value: (vars.isETH ? vars.originationFee : 0)}(
                 _reserve,
                 msg.sender,
                 vars.originationFee,
                 addressesProvider.getTokenDistributor()
             );
         }
-
+        
         //sending the total msg.value if the transfer is ETH.
         //the transferToReserve() function will take care of sending the
         //excess ETH back to the caller
-        core.transferToReserve.value(vars.isETH ? msg.value.sub(vars.originationFee) : 0)(
+        core.transferToReserve{value : (vars.isETH ? msg.value - vars.originationFee : 0)}(
             _reserve,
-            msg.sender,
+            payable(msg.sender),
             vars.paybackAmountMinusFees
         );
 
@@ -729,7 +725,7 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
         uint256 liquidityRate = core.getReserveCurrentLiquidityRate(_reserve);
         uint256 reserveCurrentStableRate = core.getReserveCurrentStableBorrowRate(_reserve);
         uint256 rebalanceDownRateThreshold = reserveCurrentStableRate.rayMul(
-            WadRayMath.ray().add(parametersProvider.getRebalanceDownRateDelta())
+            WadRayMath.ray() + parametersProvider.getRebalanceDownRateDelta()
         );
 
         //step 2: we have two possible situations to rebalance:
@@ -860,10 +856,10 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
         (uint256 totalFeeBips, uint256 protocolFeeBips) = parametersProvider
             .getFlashLoanFeesInBips();
         //calculate amount fee
-        uint256 amountFee = _amount.mul(totalFeeBips).div(10000);
+        uint256 amountFee = _amount * totalFeeBips / 10000;
 
         //protocol fee is the part of the amountFee reserved for the protocol - the rest goes to depositors
-        uint256 protocolFee = amountFee.mul(protocolFeeBips).div(10000);
+        uint256 protocolFee = amountFee * protocolFeeBips / 10000;
         require(
             amountFee > 0 && protocolFee > 0,
             "The requested amount is too small for a flashLoan."
@@ -872,7 +868,7 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
         //get the FlashLoanReceiver instance
         IFlashLoanReceiver receiver = IFlashLoanReceiver(_receiver);
 
-        address payable userPayable = address(uint160(_receiver));
+        address payable userPayable = payable(_receiver);
 
         //transfer funds to the receiver
         core.transferToUser(_reserve, userPayable, _amount);
@@ -886,14 +882,14 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
             : IERC20(_reserve).balanceOf(address(core));
 
         require(
-            availableLiquidityAfter == availableLiquidityBefore.add(amountFee),
+            availableLiquidityAfter == availableLiquidityBefore + amountFee,
             "The actual balance of the protocol is inconsistent"
         );
 
         core.updateStateOnFlashLoan(
             _reserve,
             availableLiquidityBefore,
-            amountFee.sub(protocolFee),
+            amountFee - protocolFee,
             protocolFee
         );
 

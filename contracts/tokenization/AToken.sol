@@ -1,7 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 
 import "../configuration/LendingPoolAddressesProvider.sol";
 import "../lendingpool/LendingPool.sol";
@@ -15,10 +14,8 @@ import "../libraries/WadRayMath.sol";
  * @dev Implementation of the interest bearing token for the DLP protocol.
  * @author Aave
  */
-contract AToken is ERC20, ERC20Detailed {
+contract AToken is ERC20 {
     using WadRayMath for uint256;
-
-    uint256 public constant UINT_MAX_VALUE = uint256(-1);
 
     /**
     * @dev emitted after the redeem action
@@ -131,6 +128,7 @@ contract AToken is ERC20, ERC20Detailed {
     LendingPoolCore private core;
     LendingPool private pool;
     LendingPoolDataProvider private dataProvider;
+    uint8 private _decimals;
 
     modifier onlyLendingPool {
         require(
@@ -151,20 +149,25 @@ contract AToken is ERC20, ERC20Detailed {
         uint8 _underlyingAssetDecimals,
         string memory _name,
         string memory _symbol
-    ) public ERC20Detailed(_name, _symbol, _underlyingAssetDecimals) {
+    ) ERC20(_name, _symbol) {
 
         addressesProvider = _addressesProvider;
         core = LendingPoolCore(addressesProvider.getLendingPoolCore());
         pool = LendingPool(addressesProvider.getLendingPool());
         dataProvider = LendingPoolDataProvider(addressesProvider.getLendingPoolDataProvider());
         underlyingAssetAddress = _underlyingAsset;
+        _decimals =_underlyingAssetDecimals;
+    }
+
+     function decimals() public view override returns (uint8) {
+        return _decimals;
     }
 
     /**
      * @notice ERC20 implementation internal function backing transfer() and transferFrom()
      * @dev validates the transfer before allowing it. NOTE: This is not standard ERC20 behavior
      **/
-    function _transfer(address _from, address _to, uint256 _amount) internal whenTransferAllowed(_from, _amount) {
+    function _transfer(address _from, address _to, uint256 _amount) internal override whenTransferAllowed(_from, _amount) {
 
         executeTransferInternal(_from, _to, _amount);
     }
@@ -228,7 +231,7 @@ contract AToken is ERC20, ERC20Detailed {
         uint256 amountToRedeem = _amount;
 
         //if amount is equal to uint(-1), the user wants to redeem everything
-        if(_amount == UINT_MAX_VALUE){
+        if(_amount == type(uint256).max){
             amountToRedeem = currentBalance;
         }
 
@@ -247,16 +250,16 @@ contract AToken is ERC20, ERC20Detailed {
 
         bool userIndexReset = false;
         //reset the user data if the remaining balance is 0
-        if(currentBalance.sub(amountToRedeem) == 0){
+        if(currentBalance - amountToRedeem == 0){
             userIndexReset = resetDataOnZeroBalanceInternal(msg.sender);
         }
 
         // executes redeem of the underlying asset
         pool.redeemUnderlying(
             underlyingAssetAddress,
-            msg.sender,
+            payable(msg.sender),
             amountToRedeem,
-            currentBalance.sub(amountToRedeem)
+            currentBalance - amountToRedeem
         );
 
         emit Redeem(msg.sender, amountToRedeem, balanceIncrease, userIndexReset ? 0 : index);
@@ -279,7 +282,7 @@ contract AToken is ERC20, ERC20Detailed {
          //if the user is redirecting his interest towards someone else,
         //we update the redirected balance of the redirection address by adding the accrued interest
         //and the amount deposited
-        updateRedirectedBalanceOfRedirectionAddressInternal(_account, balanceIncrease.add(_amount), 0);
+        updateRedirectedBalanceOfRedirectionAddressInternal(_account, balanceIncrease + _amount, 0);
 
         //mint an equivalent amount of tokens to cover the new deposit
         _mint(_account, _amount);
@@ -308,7 +311,7 @@ contract AToken is ERC20, ERC20Detailed {
 
         bool userIndexReset = false;
         //reset the user data if the remaining balance is 0
-        if(accountBalance.sub(_value) == 0){
+        if(accountBalance - _value == 0){
             userIndexReset = resetDataOnZeroBalanceInternal(_account);
         }
 
@@ -335,7 +338,7 @@ contract AToken is ERC20, ERC20Detailed {
     * @param _user the user for which the balance is being calculated
     * @return the total balance of the user
     **/
-    function balanceOf(address _user) public view returns(uint256) {
+    function balanceOf(address _user) public view override returns(uint256) {
 
         //current principal balance of the user
         uint256 currentPrincipalBalance = super.balanceOf(_user);
@@ -354,20 +357,18 @@ contract AToken is ERC20, ERC20Detailed {
             //the redirected balance partecipate in the interest
             return calculateCumulatedBalanceInternal(
                 _user,
-                currentPrincipalBalance.add(redirectedBalance)
-                )
-                .sub(redirectedBalance);
+                currentPrincipalBalance + redirectedBalance
+                ) - redirectedBalance;
         }
         else {
             //if the user redirected the interest, then only the redirected
             //balance generates interest. In that case, the interest generated
             //by the redirected balance is added to the current principal balance.
-            return currentPrincipalBalance.add(
+            return currentPrincipalBalance + (
                 calculateCumulatedBalanceInternal(
                     _user,
                     redirectedBalance
-                )
-                .sub(redirectedBalance)
+                ) - redirectedBalance
             );
         }
     }
@@ -389,7 +390,7 @@ contract AToken is ERC20, ERC20Detailed {
     * does that too.
     * @return the current total supply
     **/
-    function totalSupply() public view returns(uint256) {
+    function totalSupply() public view override returns(uint256) {
 
         uint256 currentSupplyPrincipal = super.totalSupply();
 
@@ -456,14 +457,14 @@ contract AToken is ERC20, ERC20Detailed {
         uint256 previousPrincipalBalance = super.balanceOf(_user);
 
         //calculate the accrued interest since the last accumulation
-        uint256 balanceIncrease = balanceOf(_user).sub(previousPrincipalBalance);
+        uint256 balanceIncrease = balanceOf(_user) - previousPrincipalBalance;
         //mints an amount of tokens equivalent to the amount accumulated
         _mint(_user, balanceIncrease);
         //updates the user index
         uint256 index = userIndexes[_user] = core.getReserveNormalizedIncome(underlyingAssetAddress);
         return (
             previousPrincipalBalance,
-            previousPrincipalBalance.add(balanceIncrease),
+            previousPrincipalBalance + balanceIncrease,
             balanceIncrease,
             index
         );
@@ -492,16 +493,14 @@ contract AToken is ERC20, ERC20Detailed {
         (,,uint256 balanceIncrease, uint256 index) = cumulateBalanceInternal(redirectionAddress);
 
         //updating the redirected balance
-        redirectedBalances[redirectionAddress] = redirectedBalances[redirectionAddress]
-            .add(_balanceToAdd)
-            .sub(_balanceToRemove);
+        redirectedBalances[redirectionAddress] += _balanceToAdd -_balanceToRemove;
 
-        //if the interest of redirectionAddress is also being redirected, we need to update
+        //if the interest of redirectionAddress is also being redirected, we need to upda
         //the redirected balance of the redirection target by adding the balance increase
         address targetOfRedirectionAddress = interestRedirectionAddresses[redirectionAddress];
 
         if(targetOfRedirectionAddress != address(0)){
-            redirectedBalances[targetOfRedirectionAddress] = redirectedBalances[targetOfRedirectionAddress].add(balanceIncrease);
+            redirectedBalances[targetOfRedirectionAddress] += balanceIncrease;
         }
 
         emit RedirectedBalanceUpdated(
@@ -567,14 +566,14 @@ contract AToken is ERC20, ERC20Detailed {
         //if the receiver is redirecting his interest towards someone else,
         //adds to the redirected balance the accrued interest and the amount
         //being transferred
-        updateRedirectedBalanceOfRedirectionAddressInternal(_to, toBalanceIncrease.add(_value), 0);
+        updateRedirectedBalanceOfRedirectionAddressInternal(_to, toBalanceIncrease + _value, 0);
 
         //performs the transfer
         super._transfer(_from, _to, _value);
 
         bool fromIndexReset = false;
         //reset the user data if the remaining balance is 0
-        if(fromBalance.sub(_value) == 0){
+        if(fromBalance - _value == 0){
             fromIndexReset = resetDataOnZeroBalanceInternal(_from);
         }
 

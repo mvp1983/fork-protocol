@@ -1,7 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/utils/Address.sol";
 import "../libraries/openzeppelin-upgradeability/VersionedInitializable.sol";
@@ -24,7 +23,6 @@ import "../libraries/EthAddressLib.sol";
 **/
 
 contract LendingPoolCore is VersionedInitializable {
-    using SafeMath for uint256;
     using WadRayMath for uint256;
     using CoreLibrary for CoreLibrary.ReserveData;
     using CoreLibrary for CoreLibrary.UserReserveData;
@@ -82,7 +80,7 @@ contract LendingPoolCore is VersionedInitializable {
     /**
     * @dev returns the revision number of the contract
     **/
-    function getRevision() internal pure returns (uint256) {
+    function getRevision() internal pure virtual override returns (uint256) {
         return CORE_REVISION;
     }
 
@@ -91,7 +89,7 @@ contract LendingPoolCore is VersionedInitializable {
     * @param _addressesProvider the addressesProvider contract
     **/
 
-    function initialize(LendingPoolAddressesProvider _addressesProvider) public initializer {
+    function initialize(LendingPoolAddressesProvider _addressesProvider) public virtual initializer {
         addressesProvider = _addressesProvider;
         refreshConfigInternal();
     }
@@ -158,9 +156,7 @@ contract LendingPoolCore is VersionedInitializable {
         //compounding the cumulated interest
         reserves[_reserve].updateCumulativeIndexes();
 
-        uint256 totalLiquidityBefore = _availableLiquidityBefore.add(
-            getReserveTotalBorrows(_reserve)
-        );
+        uint256 totalLiquidityBefore = _availableLiquidityBefore + getReserveTotalBorrows(_reserve);
 
         //compounding the received fee into the reserve
         reserves[_reserve].cumulateToLiquidityIndex(totalLiquidityBefore, _income);
@@ -335,7 +331,7 @@ contract LendingPoolCore is VersionedInitializable {
             updateReserveInterestRatesAndTimestampInternal(
                 _collateralReserve,
                 0,
-                _collateralToLiquidate.add(_liquidatedCollateralForFee)
+                _collateralToLiquidate + _liquidatedCollateralForFee
             );
         }
 
@@ -382,10 +378,9 @@ contract LendingPoolCore is VersionedInitializable {
     /**
     * @dev fallback function enforces that the caller is a contract, to support flashloan transfers
     **/
-    function() external payable {
+    fallback() external payable {
         //only contracts can send ETH to the core
-        require(msg.sender.isContract(), "Only contracts can send ether to the Lending pool core");
-
+        require(msg.sender.code.length > 0, "Only contracts can send ether to the Lending pool core");
     }
 
     /**
@@ -402,7 +397,7 @@ contract LendingPoolCore is VersionedInitializable {
             ERC20(_reserve).safeTransfer(_user, _amount);
         } else {
             //solium-disable-next-line
-            (bool result, ) = _user.call.value(_amount).gas(50000)("");
+            (bool result, ) = _user.call{value: _amount, gas: 50000}("");
             require(result, "Transfer of ETH failed");
         }
     }
@@ -421,7 +416,7 @@ contract LendingPoolCore is VersionedInitializable {
         uint256 _amount,
         address _destination
     ) external payable onlyLendingPool {
-        address payable feeAddress = address(uint160(_destination)); //cast the address to payable
+        address payable feeAddress = payable(_destination); //cast the address to payable
 
         if (_token != EthAddressLib.ethAddress()) {
             require(
@@ -432,7 +427,7 @@ contract LendingPoolCore is VersionedInitializable {
         } else {
             require(msg.value >= _amount, "The amount and the value sent to deposit do not match");
             //solium-disable-next-line
-            (bool result, ) = feeAddress.call.value(_amount).gas(50000)("");
+            (bool result, ) = feeAddress.call{value: _amount, gas :50000}("");
             require(result, "Transfer of ETH failed");
         }
     }
@@ -448,7 +443,7 @@ contract LendingPoolCore is VersionedInitializable {
         uint256 _amount,
         address _destination
     ) external payable onlyLendingPool {
-        address payable feeAddress = address(uint160(_destination)); //cast the address to payable
+        address payable feeAddress = payable(_destination); //cast the address to payable
         require(
             msg.value == 0,
             "Fee liquidation does not require any transfer of value"
@@ -458,7 +453,7 @@ contract LendingPoolCore is VersionedInitializable {
             ERC20(_token).safeTransfer(feeAddress, _amount);
         } else {
             //solium-disable-next-line
-            (bool result, ) = feeAddress.call.value(_amount).gas(50000)("");
+            (bool result, ) = feeAddress.call{value: _amount, gas: 50000}("");
             require(result, "Transfer of ETH failed");
         }
     }
@@ -483,9 +478,9 @@ contract LendingPoolCore is VersionedInitializable {
 
             if (msg.value > _amount) {
                 //send back excess ETH
-                uint256 excessAmount = msg.value.sub(_amount);
+                uint256 excessAmount = msg.value - _amount;
                 //solium-disable-next-line
-                (bool result, ) = _user.call.value(excessAmount).gas(50000)("");
+                (bool result, ) = _user.call{value: excessAmount, gas: 50000}("");
                 require(result, "Transfer of ETH failed");
             }
         }
@@ -609,7 +604,7 @@ contract LendingPoolCore is VersionedInitializable {
     **/
     function getReserveTotalLiquidity(address _reserve) public view returns (uint256) {
         CoreLibrary.ReserveData storage reserve = reserves[_reserve];
-        return getReserveAvailableLiquidity(_reserve).add(reserve.getTotalBorrows());
+        return getReserveAvailableLiquidity(_reserve) + reserve.getTotalBorrows();
     }
 
     /**
@@ -853,7 +848,7 @@ contract LendingPoolCore is VersionedInitializable {
     /**
     * @notice returns the timestamp of the last action on the reserve
     * @param _reserve the reserve for which the information is needed
-    * @return the last updated timestamp of the reserve
+    * @return timestamp the last updated timestamp of the reserve
     **/
 
     function getReserveLastUpdate(address _reserve) external view returns (uint40 timestamp) {
@@ -878,7 +873,7 @@ contract LendingPoolCore is VersionedInitializable {
 
         uint256 availableLiquidity = getReserveAvailableLiquidity(_reserve);
 
-        return totalBorrows.rayDiv(availableLiquidity.add(totalBorrows));
+        return totalBorrows.rayDiv(availableLiquidity + totalBorrows);
     }
 
     /**
@@ -1000,7 +995,7 @@ contract LendingPoolCore is VersionedInitializable {
             user,
             reserves[_reserve]
         );
-        return (principal, compoundedBalance, compoundedBalance.sub(principal));
+        return (principal, compoundedBalance, compoundedBalance - principal);
     }
 
     /**
@@ -1023,7 +1018,6 @@ contract LendingPoolCore is VersionedInitializable {
     * @dev the variable borrow index of the user is 0 if the user is not borrowing or borrowing at stable
     * @param _reserve the address of the reserve for which the information is needed
     * @param _user the address of the user for which the information is needed
-    * @return the variable borrow index for the user
     **/
 
     function getUserLastUpdate(address _reserve, address _user)
@@ -1308,7 +1302,6 @@ contract LendingPoolCore is VersionedInitializable {
     * @param _amountBorrowed the amount borrowed
     * @param _balanceIncrease the accrued interest of the user on the previous borrowed amount
     * @param _rateMode the borrow rate mode (stable, variable)
-    * @return the final borrow rate for the user. Emitted by the borrow() event
     **/
 
     function updateUserStateOnBorrowInternal(
@@ -1336,10 +1329,8 @@ contract LendingPoolCore is VersionedInitializable {
             revert("Invalid borrow rate mode");
         }
         //increase the principal borrows and the origination fee
-        user.principalBorrowBalance = user.principalBorrowBalance.add(_amountBorrowed).add(
-            _balanceIncrease
-        );
-        user.originationFee = user.originationFee.add(_fee);
+        user.principalBorrowBalance += _amountBorrowed + _balanceIncrease;
+        user.originationFee += _fee;
 
         //solium-disable-next-line
         user.lastUpdateTimestamp = uint40(block.timestamp);
@@ -1405,9 +1396,7 @@ contract LendingPoolCore is VersionedInitializable {
         CoreLibrary.UserReserveData storage user = usersReserveData[_user][_reserve];
 
         //update the user principal borrow balance, adding the cumulated interest and then subtracting the payback amount
-        user.principalBorrowBalance = user.principalBorrowBalance.add(_balanceIncrease).sub(
-            _paybackAmountMinusFees
-        );
+        user.principalBorrowBalance += _balanceIncrease - _paybackAmountMinusFees;
         user.lastVariableBorrowCumulativeIndex = reserve.lastVariableBorrowCumulativeIndex;
 
         //if the balance decrease is equal to the previous principal (user is repaying the whole loan)
@@ -1416,7 +1405,7 @@ contract LendingPoolCore is VersionedInitializable {
             user.stableBorrowRate = 0;
             user.lastVariableBorrowCumulativeIndex = 0;
         }
-        user.originationFee = user.originationFee.sub(_originationFeeRepaid);
+        user.originationFee -= _originationFeeRepaid;
 
         //solium-disable-next-line
         user.lastUpdateTimestamp = uint40(block.timestamp);
@@ -1499,7 +1488,7 @@ contract LendingPoolCore is VersionedInitializable {
             revert("Invalid interest rate mode received");
         }
         //compounding cumulated interest
-        user.principalBorrowBalance = user.principalBorrowBalance.add(_balanceIncrease);
+        user.principalBorrowBalance += _balanceIncrease;
         //solium-disable-next-line
         user.lastUpdateTimestamp = uint40(block.timestamp);
 
@@ -1584,9 +1573,7 @@ contract LendingPoolCore is VersionedInitializable {
         CoreLibrary.UserReserveData storage user = usersReserveData[_user][_reserve];
         CoreLibrary.ReserveData storage reserve = reserves[_reserve];
         //first increase by the compounded interest, then decrease by the liquidated amount
-        user.principalBorrowBalance = user.principalBorrowBalance.add(_balanceIncrease).sub(
-            _amountToLiquidate
-        );
+        user.principalBorrowBalance += _balanceIncrease - _amountToLiquidate;
 
         if (
             getUserCurrentBorrowRateMode(_reserve, _user) == CoreLibrary.InterestRateMode.VARIABLE
@@ -1595,7 +1582,7 @@ contract LendingPoolCore is VersionedInitializable {
         }
 
         if(_feeLiquidated > 0){
-            user.originationFee = user.originationFee.sub(_feeLiquidated);
+            user.originationFee -= _feeLiquidated;
         }
 
         //solium-disable-next-line
@@ -1641,7 +1628,7 @@ contract LendingPoolCore is VersionedInitializable {
         CoreLibrary.UserReserveData storage user = usersReserveData[_user][_reserve];
         CoreLibrary.ReserveData storage reserve = reserves[_reserve];
 
-        user.principalBorrowBalance = user.principalBorrowBalance.add(_balanceIncrease);
+        user.principalBorrowBalance += _balanceIncrease;
         user.stableBorrowRate = reserve.currentStableBorrowRate;
 
         //solium-disable-next-line
@@ -1679,7 +1666,7 @@ contract LendingPoolCore is VersionedInitializable {
             reserve.decreaseTotalBorrowsVariable(_principalBalance);
         }
 
-        uint256 newPrincipalAmount = _principalBalance.add(_balanceIncrease).add(_amountBorrowed);
+        uint256 newPrincipalAmount = _principalBalance + _balanceIncrease + _amountBorrowed;
         if (_newBorrowRateMode == CoreLibrary.InterestRateMode.STABLE) {
             reserve.increaseTotalBorrowsStableAndUpdateAverageRate(
                 newPrincipalAmount,
@@ -1704,7 +1691,7 @@ contract LendingPoolCore is VersionedInitializable {
         address _reserve,
         uint256 _liquidityAdded,
         uint256 _liquidityTaken
-    ) internal {
+    ) internal virtual {
         CoreLibrary.ReserveData storage reserve = reserves[_reserve];
         (uint256 newLiquidityRate, uint256 newStableRate, uint256 newVariableRate) = IReserveInterestRateStrategy(
             reserve
@@ -1712,7 +1699,7 @@ contract LendingPoolCore is VersionedInitializable {
         )
             .calculateInterestRates(
             _reserve,
-            getReserveAvailableLiquidity(_reserve).add(_liquidityAdded).sub(_liquidityTaken),
+            getReserveAvailableLiquidity(_reserve) + _liquidityAdded - _liquidityTaken,
             reserve.totalBorrowsStable,
             reserve.totalBorrowsVariable,
             reserve.currentAverageStableBorrowRate
@@ -1742,13 +1729,13 @@ contract LendingPoolCore is VersionedInitializable {
     **/
 
     function transferFlashLoanProtocolFeeInternal(address _token, uint256 _amount) internal {
-        address payable receiver = address(uint160(addressesProvider.getTokenDistributor()));
+        address payable receiver = payable(addressesProvider.getTokenDistributor());
 
         if (_token != EthAddressLib.ethAddress()) {
             ERC20(_token).safeTransfer(receiver, _amount);
         } else {
             //solium-disable-next-line
-            (bool result, ) = receiver.call.value(_amount)("");
+            (bool result, ) = receiver.call{value: _amount}("");
             require(result, "Transfer to token distributor failed");
         }
     }

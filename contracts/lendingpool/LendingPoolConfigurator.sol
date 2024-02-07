@@ -1,7 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "../libraries/openzeppelin-upgradeability/VersionedInitializable.sol";
 import "../configuration/LendingPoolAddressesProvider.sol";
 import "./LendingPoolCore.sol";
@@ -15,7 +14,6 @@ import "../tokenization/AToken.sol";
 **/
 
 contract LendingPoolConfigurator is VersionedInitializable {
-    using SafeMath for uint256;
 
     /**
     * @dev emitted when a reserve is initialized.
@@ -156,7 +154,7 @@ contract LendingPoolConfigurator is VersionedInitializable {
 
     uint256 public constant CONFIGURATOR_REVISION = 0x3;
 
-    function getRevision() internal pure returns (uint256) {
+    function getRevision() internal pure override returns (uint256) {
         return CONFIGURATOR_REVISION;
     }
 
@@ -175,7 +173,7 @@ contract LendingPoolConfigurator is VersionedInitializable {
         uint8 _underlyingAssetDecimals,
         address _interestRateStrategyAddress
     ) external onlyLendingPoolManager {
-        ERC20Detailed asset = ERC20Detailed(_reserve);
+        ERC20 asset = ERC20(_reserve);
 
         string memory aTokenName = string(abi.encodePacked("Aave Interest bearing ", asset.name()));
         string memory aTokenSymbol = string(abi.encodePacked("a", asset.symbol()));

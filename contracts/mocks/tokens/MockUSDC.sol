@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 
 import "./MintableERC20.sol";
@@ -6,7 +6,10 @@ import "./MintableERC20.sol";
 
 contract MockUSDC is MintableERC20 {
 
-    uint256 public decimals = 6;
-    string public symbol = "USDC";
-    string public name = "USD Coin";
+    constructor() ERC20("USDC", "USD Coin") {}
+    
+    function decimals() public view override returns (uint8) {
+        return 6;
+    }
+
 }

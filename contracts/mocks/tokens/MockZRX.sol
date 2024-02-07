@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 
 import "./MintableERC20.sol";
@@ -6,7 +6,5 @@ import "./MintableERC20.sol";
 
 contract MockZRX is MintableERC20 {
 
-    uint256 public decimals = 18;
-    string public symbol = "ZRX";
-    string public name = "0x Coin";
+    constructor() ERC20("0x Coin", "ZRX") {}
 }

@@ -1,20 +1,17 @@
-pragma solidity ^0.5.0;
-
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+pragma solidity ^0.8.24;
 
 import "../../flashloan/base/FlashLoanReceiverBase.sol";
 import "../tokens/MintableERC20.sol";
 
 contract MockFlashLoanReceiver is FlashLoanReceiverBase {
 
-    using SafeMath for uint256;
     event ExecutedWithFail(address _reserve, uint256 _amount, uint256 _fee);
     event ExecutedWithSuccess(address _reserve, uint256 _amount, uint256 _fee);
 
 
     bool failExecution = false;
 
-    constructor(ILendingPoolAddressesProvider _provider) FlashLoanReceiverBase(_provider)  public {
+    constructor(ILendingPoolAddressesProvider _provider) FlashLoanReceiverBase(_provider) {
     }
 
     function setFailExecutionTransfer(bool _fail) public {
@@ -45,7 +42,7 @@ contract MockFlashLoanReceiver is FlashLoanReceiverBase {
             token.mint(_fee);
         }
         //returning amount + fee to the destination
-        transferFundsBackToPoolInternal(_reserve, _amount.add(_fee));
+        transferFundsBackToPoolInternal(_reserve, _amount + _fee);
         emit ExecutedWithSuccess(_reserve, _amount, _fee);
     }
 }

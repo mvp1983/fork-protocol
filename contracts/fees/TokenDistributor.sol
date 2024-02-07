@@ -1,5 +1,10 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
+import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../libraries/openzeppelin-upgradeability/VersionedInitializable.sol";
+import "../libraries/EthAddressLib.sol";
+import "../interfaces/IKyberNetworkProxyInterface.sol";
 
 
 /// @title TokenDistributor
@@ -13,7 +18,6 @@ pragma solidity ^0.5.0;
 ///  - If the address(0) is used as receiver, this contract will trade in Kyber to tokenToBurn (LEND)
 ///    and burn it (sending to address(0) the tokenToBurn)
 contract TokenDistributor is ReentrancyGuard, VersionedInitializable {
-    using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     struct Distribution {
@@ -54,7 +58,7 @@ contract TokenDistributor is ReentrancyGuard, VersionedInitializable {
     address public recipientBurn;
 
     /// @notice DEPRECATED
-    IExchangeAdapter public exchangeAdapter;
+    //IExchangeAdapter public exchangeAdapter;
 
     /// @notice Called by the proxy when setting this contract as implementation
     function initialize(
@@ -67,7 +71,7 @@ contract TokenDistributor is ReentrancyGuard, VersionedInitializable {
     }
 
     /// @notice In order to receive ETH transfers
-    function() external payable {}
+    fallback() external payable {}
 
 
     /// @notice Distributes the whole balance of a list of _tokens balances in this contract
@@ -100,8 +104,8 @@ contract TokenDistributor is ReentrancyGuard, VersionedInitializable {
     function distributeWithPercentages(IERC20[] memory _tokens, uint256[] memory _percentages) public {
         for (uint256 i = 0; i < _tokens.length; i++) {
             uint256 _amountToDistribute = (address(_tokens[i]) != EthAddressLib.ethAddress())
-                ? _tokens[i].balanceOf(address(this)).mul(_percentages[i]).div(100)
-                : address(this).balance.mul(_percentages[i]).div(100);
+                ? _tokens[i].balanceOf(address(this)) * _percentages[i] / 100
+                : address(this).balance * _percentages[i] / 100;
             if (_amountToDistribute <= 0) {
                 continue;
             }
@@ -128,7 +132,7 @@ contract TokenDistributor is ReentrancyGuard, VersionedInitializable {
         address _tokenAddress = address(_token);
         Distribution memory _distribution = distribution;
         for (uint256 j = 0; j < _distribution.receivers.length; j++) {
-            uint256 _amount = _amountToDistribute.mul(_distribution.percentages[j]).div(DISTRIBUTION_BASE);
+            uint256 _amount = _amountToDistribute * _distribution.percentages[j] / DISTRIBUTION_BASE;
 
             //avoid transfers/burns of 0 tokens
             if(_amount == 0){
@@ -139,7 +143,7 @@ contract TokenDistributor is ReentrancyGuard, VersionedInitializable {
                 _token.safeTransfer(_distribution.receivers[j], _amount);
             } else {
                 //solium-disable-next-line
-                (bool _success,) = _distribution.receivers[j].call.value(_amount)("");
+                (bool _success,) = _distribution.receivers[j].call{value: _amount}("");
                 require(_success, "Reverted ETH transfer");
             }
             emit Distributed(_distribution.receivers[j], _distribution.percentages[j], _amount);
@@ -156,7 +160,7 @@ contract TokenDistributor is ReentrancyGuard, VersionedInitializable {
 
     /// @notice Gets the revision number of the contract
     /// @return The revision numeric reference
-    function getRevision() internal pure returns (uint256) {
+    function getRevision() internal pure override returns (uint256) {
         return IMPLEMENTATION_REVISION;
     }
 

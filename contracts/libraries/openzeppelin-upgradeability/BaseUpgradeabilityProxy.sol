@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 import "./Proxy.sol";
 import "openzeppelin-solidity/contracts/utils/Address.sol";
@@ -25,9 +25,9 @@ contract BaseUpgradeabilityProxy is Proxy {
 
     /**
    * @dev Returns the current implementation.
-   * @return Address of the current implementation
+   * @return impl Address of the current implementation
    */
-    function _implementation() internal view returns (address impl) {
+    function _implementation() internal view override returns (address impl) {
         bytes32 slot = IMPLEMENTATION_SLOT;
         //solium-disable-next-line
         assembly {
@@ -50,7 +50,7 @@ contract BaseUpgradeabilityProxy is Proxy {
    */
     function _setImplementation(address newImplementation) internal {
         require(
-            Address.isContract(newImplementation),
+            newImplementation.code.length > 0,
             "Cannot set a proxy implementation to a non-contract address"
         );
 

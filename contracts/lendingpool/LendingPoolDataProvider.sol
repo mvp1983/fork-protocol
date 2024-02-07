@@ -1,6 +1,5 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "../libraries/openzeppelin-upgradeability/VersionedInitializable.sol";
 
 import "../libraries/CoreLibrary.sol";
@@ -19,7 +18,6 @@ import "./LendingPoolCore.sol";
 * on the compounded balances and the account balances in ETH
 **/
 contract LendingPoolDataProvider is VersionedInitializable {
-    using SafeMath for uint256;
     using WadRayMath for uint256;
 
     LendingPoolCore public core;
@@ -33,7 +31,7 @@ contract LendingPoolDataProvider is VersionedInitializable {
 
     uint256 public constant DATA_PROVIDER_REVISION = 0x1;
 
-    function getRevision() internal pure returns (uint256) {
+    function getRevision() internal pure override returns (uint256) {
         return DATA_PROVIDER_REVISION;
     }
 
@@ -64,8 +62,6 @@ contract LendingPoolDataProvider is VersionedInitializable {
     * this includes the total liquidity/collateral/borrow balances in ETH,
     * the average Loan To Value, the average Liquidation Ratio, and the Health factor.
     * @param _user the address of the user
-    * @return the total liquidity, total collateral, total borrow balances of the user in ETH.
-    * also the average Ltv, liquidation threshold, and the health factor
     **/
     function calculateUserGlobalData(address _user)
         public
@@ -115,34 +111,26 @@ contract LendingPoolDataProvider is VersionedInitializable {
 
             //liquidity and collateral balance
             if (vars.compoundedLiquidityBalance > 0) {
-                uint256 liquidityBalanceETH = vars
-                    .reserveUnitPrice
-                    .mul(vars.compoundedLiquidityBalance)
-                    .div(vars.tokenUnit);
-                totalLiquidityBalanceETH = totalLiquidityBalanceETH.add(liquidityBalanceETH);
+                uint256 liquidityBalanceETH = vars.reserveUnitPrice * vars.compoundedLiquidityBalance / 
+                    vars.tokenUnit;
+                totalLiquidityBalanceETH += liquidityBalanceETH;
 
                 if (vars.usageAsCollateralEnabled && vars.userUsesReserveAsCollateral) {
-                    totalCollateralBalanceETH = totalCollateralBalanceETH.add(liquidityBalanceETH);
-                    currentLtv = currentLtv.add(liquidityBalanceETH.mul(vars.baseLtv));
-                    currentLiquidationThreshold = currentLiquidationThreshold.add(
-                        liquidityBalanceETH.mul(vars.liquidationThreshold)
-                    );
+                    totalCollateralBalanceETH += liquidityBalanceETH;
+                    currentLtv += liquidityBalanceETH * vars.baseLtv;
+                    currentLiquidationThreshold += liquidityBalanceETH * vars.liquidationThreshold;
                 }
             }
 
             if (vars.compoundedBorrowBalance > 0) {
-                totalBorrowBalanceETH = totalBorrowBalanceETH.add(
-                    vars.reserveUnitPrice.mul(vars.compoundedBorrowBalance).div(vars.tokenUnit)
-                );
-                totalFeesETH = totalFeesETH.add(
-                    vars.originationFee.mul(vars.reserveUnitPrice).div(vars.tokenUnit)
-                );
+                totalBorrowBalanceETH += vars.reserveUnitPrice * vars.compoundedBorrowBalance / vars.tokenUnit;
+                totalFeesETH += vars.originationFee * vars.reserveUnitPrice / vars.tokenUnit;
             }
         }
 
-        currentLtv = totalCollateralBalanceETH > 0 ? currentLtv.div(totalCollateralBalanceETH) : 0;
+        currentLtv = totalCollateralBalanceETH > 0 ? currentLtv / totalCollateralBalanceETH : 0;
         currentLiquidationThreshold = totalCollateralBalanceETH > 0
-            ? currentLiquidationThreshold.div(totalCollateralBalanceETH)
+            ? currentLiquidationThreshold / totalCollateralBalanceETH
             : 0;
 
         healthFactor = calculateHealthFactorFromBalancesInternal(
@@ -216,24 +204,17 @@ contract LendingPoolDataProvider is VersionedInitializable {
 
         IPriceOracleGetter oracle = IPriceOracleGetter(addressesProvider.getPriceOracle());
 
-        vars.amountToDecreaseETH = oracle.getAssetPrice(_reserve).mul(_amount).div(
-            10 ** vars.decimals
-        );
+        vars.amountToDecreaseETH = oracle.getAssetPrice(_reserve) * _amount / (10 ** vars.decimals);
 
-        vars.collateralBalancefterDecrease = vars.collateralBalanceETH.sub(
-            vars.amountToDecreaseETH
-        );
+        vars.collateralBalancefterDecrease = vars.collateralBalanceETH - vars.amountToDecreaseETH;
 
         //if there is a borrow, there can't be 0 collateral
         if (vars.collateralBalancefterDecrease == 0) {
             return false;
         }
 
-        vars.liquidationThresholdAfterDecrease = vars
-            .collateralBalanceETH
-            .mul(vars.currentLiquidationThreshold)
-            .sub(vars.amountToDecreaseETH.mul(vars.reserveLiquidationThreshold))
-            .div(vars.collateralBalancefterDecrease);
+        vars.liquidationThresholdAfterDecrease = (vars.collateralBalanceETH * vars.currentLiquidationThreshold -
+            vars.amountToDecreaseETH * vars.reserveLiquidationThreshold) / vars.collateralBalancefterDecrease;
 
         uint256 healthFactorAfterDecrease = calculateHealthFactorFromBalancesInternal(
             vars.collateralBalancefterDecrease,
@@ -267,17 +248,12 @@ contract LendingPoolDataProvider is VersionedInitializable {
 
         IPriceOracleGetter oracle = IPriceOracleGetter(addressesProvider.getPriceOracle());
 
-        uint256 requestedBorrowAmountETH = oracle
-            .getAssetPrice(_reserve)
-            .mul(_amount.add(_fee))
-            .div(10 ** reserveDecimals); //price is in ether
+        uint256 requestedBorrowAmountETH = oracle.getAssetPrice(_reserve) * (_amount  + _fee) / 
+            (10 ** reserveDecimals); //price is in ether
 
         //add the current already borrowed amount to the amount requested to calculate the total collateral needed.
-        uint256 collateralNeededInETH = _userCurrentBorrowBalanceTH
-            .add(_userCurrentFeesETH)
-            .add(requestedBorrowAmountETH)
-            .mul(100)
-            .div(_userCurrentLtv); //LTV is calculated in percentage
+        uint256 collateralNeededInETH = (_userCurrentBorrowBalanceTH + _userCurrentFeesETH + 
+            requestedBorrowAmountETH) * 100 / _userCurrentLtv; //LTV is calculated in percentage
 
         return collateralNeededInETH;
 
@@ -299,17 +275,17 @@ contract LendingPoolDataProvider is VersionedInitializable {
         uint256 totalFeesETH,
         uint256 ltv
     ) internal view returns (uint256) {
-        uint256 availableBorrowsETH = collateralBalanceETH.mul(ltv).div(100); //ltv is in percentage
+        uint256 availableBorrowsETH = collateralBalanceETH * ltv / 100; //ltv is in percentage
 
         if (availableBorrowsETH < borrowBalanceETH) {
             return 0;
         }
 
-        availableBorrowsETH = availableBorrowsETH.sub(borrowBalanceETH.add(totalFeesETH));
+        availableBorrowsETH = availableBorrowsETH - (borrowBalanceETH + totalFeesETH);
         //calculate fee
         uint256 borrowFee = IFeeProvider(addressesProvider.getFeeProvider())
             .calculateLoanOriginationFee(msg.sender, availableBorrowsETH);
-        return availableBorrowsETH.sub(borrowFee);
+        return availableBorrowsETH - borrowFee;
     }
 
     /**
@@ -325,11 +301,11 @@ contract LendingPoolDataProvider is VersionedInitializable {
         uint256 totalFeesETH,
         uint256 liquidationThreshold
     ) internal pure returns (uint256) {
-        if (borrowBalanceETH == 0) return uint256(-1);
+        if (borrowBalanceETH == 0) return type(uint256).max;
 
         return
-            (collateralBalanceETH.mul(liquidationThreshold).div(100)).wadDiv(
-                borrowBalanceETH.add(totalFeesETH)
+            (collateralBalanceETH * liquidationThreshold / 100).wadDiv(
+                borrowBalanceETH + totalFeesETH
             );
     }
 

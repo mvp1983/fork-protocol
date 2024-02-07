@@ -1,7 +1,7 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 import "./MockAggregatorBase.sol";
 
 contract MockAggregatorWBTC is MockAggregatorBase {
-    constructor (int256 _initialAnswer) public MockAggregatorBase(_initialAnswer) {}
+    constructor (int256 _initialAnswer) MockAggregatorBase(_initialAnswer) {}
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 contract AddressStorage {
     mapping(bytes32 => address) private addresses;

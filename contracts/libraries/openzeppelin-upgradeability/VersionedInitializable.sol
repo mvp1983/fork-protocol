@@ -1,4 +1,4 @@
-pragma solidity >=0.4.24 <0.6.0;
+pragma solidity >=0.4.24 <0.9.0;
 
 /**
  * @title VersionedInitializable
@@ -14,7 +14,7 @@ pragma solidity >=0.4.24 <0.6.0;
  *
  * @author Aave, inspired by the OpenZeppelin Initializable contract
  */
-contract VersionedInitializable {
+abstract contract VersionedInitializable {
     /**
    * @dev Indicates that the contract has been initialized.
    */
@@ -47,7 +47,7 @@ contract VersionedInitializable {
 
     /// @dev returns the revision number of the contract.
     /// Needs to be defined in the inherited class as a constant.
-    function getRevision() internal pure returns(uint256);
+    function getRevision() internal virtual pure returns(uint256);
 
 
     /// @dev Returns true if and only if the function is running in the constructor
@@ -60,7 +60,7 @@ contract VersionedInitializable {
         uint256 cs;
         //solium-disable-next-line
         assembly {
-            cs := extcodesize(address)
+            cs := extcodesize(address())
         }
         return cs == 0;
     }

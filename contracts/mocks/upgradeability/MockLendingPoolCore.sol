@@ -1,7 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/utils/Address.sol";
 import "../../libraries/openzeppelin-upgradeability/VersionedInitializable.sol";
@@ -24,19 +23,17 @@ contract MockLendingPoolCore is LendingPoolCore {
 
     event ReserveUpdatedFromMock(uint256 indexed revision);
 
-    uint256 constant private CORE_REVISION = 0x5;
-
-    function getRevision() internal pure returns(uint256) {
-        return CORE_REVISION;
+    function getRevision() internal pure override returns(uint256) {
+        return 0x5;
     }
 
-    function initialize(LendingPoolAddressesProvider _addressesProvider) public initializer {
+    function initialize(LendingPoolAddressesProvider _addressesProvider) public override initializer {
         addressesProvider = _addressesProvider;
         refreshConfigInternal();
     }
 
     function updateReserveInterestRatesAndTimestampInternal(address _reserve, uint256 _liquidityAdded, uint256 _liquidityTaken)
-        internal
+        internal override
     {
         super.updateReserveInterestRatesAndTimestampInternal(_reserve, _liquidityAdded, _liquidityTaken);
 

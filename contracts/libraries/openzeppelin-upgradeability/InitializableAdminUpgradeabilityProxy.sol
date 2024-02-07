@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 import "./BaseAdminUpgradeabilityProxy.sol";
 import "./InitializableUpgradeabilityProxy.sol";

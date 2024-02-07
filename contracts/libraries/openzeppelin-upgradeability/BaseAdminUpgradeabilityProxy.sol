@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 import "./UpgradeabilityProxy.sol";
 
@@ -89,7 +89,7 @@ contract BaseAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
     }
 
     /**
-   * @return The admin slot.
+   * @return adm The admin slot.
    */
     function _admin() internal view returns (address adm) {
         bytes32 slot = ADMIN_SLOT;
@@ -116,6 +116,5 @@ contract BaseAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
    */
     function _willFallback() internal {
         require(msg.sender != _admin(), "Cannot call fallback function from the proxy admin");
-        super._willFallback();
     }
 }

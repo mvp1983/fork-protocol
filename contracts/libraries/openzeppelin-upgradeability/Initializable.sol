@@ -1,4 +1,4 @@
-pragma solidity >=0.4.24 <0.6.0;
+pragma solidity >=0.4.24 <0.9.0;
 
 /**
  * @title Initializable
@@ -52,7 +52,7 @@ contract Initializable {
         uint256 cs;
         //solium-disable-next-line
         assembly {
-            cs := extcodesize(address)
+            cs := extcodesize(address())
         }
         return cs == 0;
     }

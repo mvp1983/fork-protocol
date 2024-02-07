@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 import "../libraries/openzeppelin-upgradeability/VersionedInitializable.sol";
 import "../interfaces/IFeeProvider.sol";
@@ -19,7 +19,7 @@ contract FeeProvider is IFeeProvider, VersionedInitializable {
 
     uint256 constant public FEE_PROVIDER_REVISION = 0x1;
 
-    function getRevision() internal pure returns(uint256) {
+    function getRevision() internal pure override returns(uint256) {
         return FEE_PROVIDER_REVISION;
     }
     /**

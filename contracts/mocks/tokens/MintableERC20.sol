@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
@@ -6,7 +6,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
  * @title ERC20Mintable
  * @dev ERC20 minting logic
  */
-contract MintableERC20 is ERC20 {
+abstract contract MintableERC20 is ERC20 {
     /**
      * @dev Function to mint tokens
      * @param value The amount of tokens to mint.

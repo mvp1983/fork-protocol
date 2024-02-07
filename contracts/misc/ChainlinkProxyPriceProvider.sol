@@ -1,6 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
 
 import "../interfaces/IPriceOracleGetter.sol";
 import "../interfaces/IChainlinkAggregator.sol";
@@ -26,7 +26,7 @@ contract ChainlinkProxyPriceProvider is IPriceOracleGetter, Ownable {
     /// @param _sources The address of the source of each asset
     /// @param _fallbackOracle The address of the fallback oracle to use if the data of an
     ///        aggregator is not consistent
-    constructor(address[] memory _assets, address[] memory _sources, address _fallbackOracle) public {
+    constructor(address[] memory _assets, address[] memory _sources, address _fallbackOracle) Ownable(msg.sender){
         internalSetFallbackOracle(_fallbackOracle);
         internalSetAssetsSources(_assets, _sources);
     }

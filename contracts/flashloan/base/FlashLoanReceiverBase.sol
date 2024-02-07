@@ -1,24 +1,22 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/IFlashLoanReceiver.sol";
 import "../../interfaces/ILendingPoolAddressesProvider.sol";
 import "../../libraries/EthAddressLib.sol";
 
-contract FlashLoanReceiverBase is IFlashLoanReceiver {
+abstract contract FlashLoanReceiverBase is IFlashLoanReceiver {
 
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     ILendingPoolAddressesProvider public addressesProvider;
 
-    constructor(ILendingPoolAddressesProvider _provider) public {
+    constructor(ILendingPoolAddressesProvider _provider) {
         addressesProvider = _provider;
     }
 
-    function () external payable {
+    fallback () external payable {
     }
 
     function transferFundsBackToPoolInternal(address _reserve, uint256 _amount) internal {
@@ -31,7 +29,7 @@ contract FlashLoanReceiverBase is IFlashLoanReceiver {
     function transferInternal(address payable _destination, address _reserve, uint256  _amount) internal {
         if(_reserve == EthAddressLib.ethAddress()) {
             //solium-disable-next-line
-            _destination.call.value(_amount)("");
+            _destination.call{value: _amount}("");
             return;
         }
 
