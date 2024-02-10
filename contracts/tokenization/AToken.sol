@@ -167,7 +167,7 @@ contract AToken is ERC20 {
      * @notice ERC20 implementation internal function backing transfer() and transferFrom()
      * @dev validates the transfer before allowing it. NOTE: This is not standard ERC20 behavior
      **/
-    function _transfer(address _from, address _to, uint256 _amount) internal override whenTransferAllowed(_from, _amount) {
+    function _update(address _from, address _to, uint256 _amount) internal override whenTransferAllowed(_from, _amount) {
 
         executeTransferInternal(_from, _to, _amount);
     }

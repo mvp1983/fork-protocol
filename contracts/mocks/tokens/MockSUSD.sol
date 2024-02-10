@@ -8,7 +8,7 @@ contract MockSUSD is MintableERC20 {
 
     constructor() ERC20("SUSD", "Synthetix USD") {}
     
-    function decimals() public view override returns (uint8) {
+    function decimals() public pure override returns (uint8) {
         return 6;
     }
     

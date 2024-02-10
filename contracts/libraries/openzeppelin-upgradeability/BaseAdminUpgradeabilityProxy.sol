@@ -114,7 +114,7 @@ contract BaseAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
     /**
    * @dev Only fall back when the sender is not the admin.
    */
-    function _willFallback() internal {
+    function _willFallback() internal view {
         require(msg.sender != _admin(), "Cannot call fallback function from the proxy admin");
     }
 }
