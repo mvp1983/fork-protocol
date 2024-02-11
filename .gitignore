@@ -37,3 +37,6 @@ out/MockUSDT.sol/MockUSDT.json
 out/MockWBTC.sol/MockWBTC.json
 out/MockZRX.sol/MockZRX.json
 out/WalletBalanceProvider.sol/WalletBalanceProvider.json
+artifacts/
+cache/
+node_modules/

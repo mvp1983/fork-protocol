@@ -1,6 +1,6 @@
 pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/access/Ownable.sol";
+import "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 import "../interfaces/IPriceOracleGetter.sol";
 import "../interfaces/IChainlinkAggregator.sol";

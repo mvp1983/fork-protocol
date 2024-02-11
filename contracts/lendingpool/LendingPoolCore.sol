@@ -1,8 +1,8 @@
 pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/utils/Address.sol";
+import "../../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "../../lib/openzeppelin-contracts/contracts/utils/Address.sol";
 import "../libraries/openzeppelin-upgradeability/VersionedInitializable.sol";
 
 import "../libraries/CoreLibrary.sol";

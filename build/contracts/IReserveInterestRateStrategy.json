@@ -2,7 +2,6 @@
   "contractName": "IReserveInterestRateStrategy",
   "abi": [
     {
-      "constant": true,
       "inputs": [],
       "name": "getBaseVariableBorrowRate",
       "outputs": [
@@ -12,12 +11,10 @@
           "type": "uint256"
         }
       ],
-      "payable": false,
       "stateMutability": "view",
       "type": "function"
     },
     {
-      "constant": true,
       "inputs": [
         {
           "internalType": "address",
@@ -63,78 +60,96 @@
           "type": "uint256"
         }
       ],
-      "payable": false,
       "stateMutability": "view",
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.14+commit.01f1aaa4\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_reserve\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_utilizationRate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_totalBorrowsStable\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_totalBorrowsVariable\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_averageStableBorrowRate\",\"type\":\"uint256\"}],\"name\":\"calculateInterestRates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"liquidityRate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"stableBorrowRate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"variableBorrowRate\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"getBaseVariableBorrowRate\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{\"calculateInterestRates(address,uint256,uint256,uint256,uint256)\":{\"details\":\"calculates the liquidity, stable, and variable rates depending on the current utilization rate     and the base parameters    \"},\"getBaseVariableBorrowRate()\":{\"details\":\"returns the base variable borrow rate, in rays\"}},\"title\":\"IReserveInterestRateStrategyInterface interface\"},\"userdoc\":{\"methods\":{},\"notice\":\"Interface for the calculation of the interest rates.\"}},\"settings\":{\"compilationTarget\":{\"/src/contracts/interfaces/IReserveInterestRateStrategy.sol\":\"IReserveInterestRateStrategy\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/src/contracts/interfaces/IReserveInterestRateStrategy.sol\":{\"keccak256\":\"0x2cac3923ddccd52d48ec16c12f8542c264b1dba0ceba8ed55dcae6a0ff3ece27\",\"urls\":[\"bzz-raw://6adddcb0f99f6749e3c42b0e36c59c867aba6a537c902d85de8005f37b24e781\",\"dweb:/ipfs/QmeBJBDZaaXrN8793Y4a3YP9VpNLVe3AwmQu163qoAG7Cg\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_reserve\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_utilizationRate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_totalBorrowsStable\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_totalBorrowsVariable\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_averageStableBorrowRate\",\"type\":\"uint256\"}],\"name\":\"calculateInterestRates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"liquidityRate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"stableBorrowRate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"variableBorrowRate\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getBaseVariableBorrowRate\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"calculateInterestRates(address,uint256,uint256,uint256,uint256)\":{\"details\":\"calculates the liquidity, stable, and variable rates depending on the current utilization rate      and the base parameters\"},\"getBaseVariableBorrowRate()\":{\"details\":\"returns the base variable borrow rate, in rays\"}},\"title\":\"IReserveInterestRateStrategyInterface interface\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Interface for the calculation of the interest rates.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/interfaces/IReserveInterestRateStrategy.sol\":\"IReserveInterestRateStrategy\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"project:/contracts/interfaces/IReserveInterestRateStrategy.sol\":{\"keccak256\":\"0x4be0fbb4dc507fbbf9d5b795edd457d6d1cc04b2259da0cf725ae1af52cc690c\",\"urls\":[\"bzz-raw://2312b108fa98a04e8c71f27a220b5d3ec8c8181825fb8a311a5dc2118abd2ca0\",\"dweb:/ipfs/QmRehAh9Zq5AKH7okGYWYq4rBLkCyFyo3vGeq16hxgSF6S\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity ^0.5.0;\n\n/**\n@title IReserveInterestRateStrategyInterface interface\n@notice Interface for the calculation of the interest rates.\n*/\n\ninterface IReserveInterestRateStrategy {\n\n    /**\n    * @dev returns the base variable borrow rate, in rays\n    */\n\n    function getBaseVariableBorrowRate() external view returns (uint256);\n    /**\n    * @dev calculates the liquidity, stable, and variable rates depending on the current utilization rate\n    *      and the base parameters\n    *\n    */\n    function calculateInterestRates(\n        address _reserve,\n        uint256 _utilizationRate,\n        uint256 _totalBorrowsStable,\n        uint256 _totalBorrowsVariable,\n        uint256 _averageStableBorrowRate)\n    external\n    view\n    returns (uint256 liquidityRate, uint256 stableBorrowRate, uint256 variableBorrowRate);\n}\n",
-  "sourcePath": "/src/contracts/interfaces/IReserveInterestRateStrategy.sol",
+  "source": "pragma solidity ^0.8.24;\r\n\r\n/**\r\n@title IReserveInterestRateStrategyInterface interface\r\n@notice Interface for the calculation of the interest rates.\r\n*/\r\n\r\ninterface IReserveInterestRateStrategy {\r\n\r\n    /**\r\n    * @dev returns the base variable borrow rate, in rays\r\n    */\r\n\r\n    function getBaseVariableBorrowRate() external view returns (uint256);\r\n    /**\r\n    * @dev calculates the liquidity, stable, and variable rates depending on the current utilization rate\r\n    *      and the base parameters\r\n    *\r\n    */\r\n    function calculateInterestRates(\r\n        address _reserve,\r\n        uint256 _utilizationRate,\r\n        uint256 _totalBorrowsStable,\r\n        uint256 _totalBorrowsVariable,\r\n        uint256 _averageStableBorrowRate)\r\n    external\r\n    view\r\n    returns (uint256 liquidityRate, uint256 stableBorrowRate, uint256 variableBorrowRate);\r\n}\r\n",
+  "sourcePath": "C:\\Proj\\fork-protocol\\contracts\\interfaces\\IReserveInterestRateStrategy.sol",
   "ast": {
-    "absolutePath": "/src/contracts/interfaces/IReserveInterestRateStrategy.sol",
+    "absolutePath": "project:/contracts/interfaces/IReserveInterestRateStrategy.sol",
     "exportedSymbols": {
       "IReserveInterestRateStrategy": [
-        1698
+        1670
       ]
     },
-    "id": 1699,
+    "id": 1671,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1673,
+        "id": 1642,
         "literals": [
           "solidity",
           "^",
-          "0.5",
-          ".0"
+          "0.8",
+          ".24"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:23:17"
+        "src": "0:24:15"
       },
       {
+        "abstract": false,
         "baseContracts": [],
+        "canonicalName": "IReserveInterestRateStrategy",
         "contractDependencies": [],
         "contractKind": "interface",
-        "documentation": "@title IReserveInterestRateStrategyInterface interface\n@notice Interface for the calculation of the interest rates.",
+        "documentation": {
+          "id": 1643,
+          "nodeType": "StructuredDocumentation",
+          "src": "28:125:15",
+          "text": "@title IReserveInterestRateStrategyInterface interface\n@notice Interface for the calculation of the interest rates."
+        },
         "fullyImplemented": false,
-        "id": 1698,
+        "id": 1670,
         "linearizedBaseContracts": [
-          1698
+          1670
         ],
         "name": "IReserveInterestRateStrategy",
+        "nameLocation": "167:28:15",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "body": null,
-            "documentation": "@dev returns the base variable borrow rate, in rays",
-            "id": 1678,
+            "documentation": {
+              "id": 1644,
+              "nodeType": "StructuredDocumentation",
+              "src": "205:70:15",
+              "text": " @dev returns the base variable borrow rate, in rays"
+            },
+            "functionSelector": "34762ca5",
+            "id": 1649,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getBaseVariableBorrowRate",
+            "nameLocation": "292:25:15",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1674,
+              "id": 1645,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "303:2:17"
+              "src": "317:2:15"
             },
             "returnParameters": {
-              "id": 1677,
+              "id": 1648,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1676,
+                  "id": 1647,
+                  "mutability": "mutable",
                   "name": "",
+                  "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1678,
-                  "src": "329:7:17",
+                  "scope": 1649,
+                  "src": "343:7:15",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -142,47 +157,54 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1675,
+                    "id": 1646,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "329:7:17",
+                    "src": "343:7:15",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "328:9:17"
+              "src": "342:9:15"
             },
-            "scope": 1698,
-            "src": "269:69:17",
+            "scope": 1670,
+            "src": "283:69:15",
             "stateMutability": "view",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           },
           {
-            "body": null,
-            "documentation": "@dev calculates the liquidity, stable, and variable rates depending on the current utilization rate\n     and the base parameters\n    ",
-            "id": 1697,
+            "documentation": {
+              "id": 1650,
+              "nodeType": "StructuredDocumentation",
+              "src": "358:161:15",
+              "text": " @dev calculates the liquidity, stable, and variable rates depending on the current utilization rate\n      and the base parameters"
+            },
+            "functionSelector": "57e37af0",
+            "id": 1669,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "calculateInterestRates",
+            "nameLocation": "534:22:15",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1689,
+              "id": 1661,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1680,
+                  "id": 1652,
+                  "mutability": "mutable",
                   "name": "_reserve",
+                  "nameLocation": "575:8:15",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "546:16:17",
+                  "scope": 1669,
+                  "src": "567:16:15",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -190,26 +212,27 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 1679,
+                    "id": 1651,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "546:7:17",
+                    "src": "567:7:15",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 },
                 {
                   "constant": false,
-                  "id": 1682,
+                  "id": 1654,
+                  "mutability": "mutable",
                   "name": "_utilizationRate",
+                  "nameLocation": "602:16:15",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "572:24:17",
+                  "scope": 1669,
+                  "src": "594:24:15",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -217,25 +240,26 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1681,
+                    "id": 1653,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "572:7:17",
+                    "src": "594:7:15",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 },
                 {
                   "constant": false,
-                  "id": 1684,
+                  "id": 1656,
+                  "mutability": "mutable",
                   "name": "_totalBorrowsStable",
+                  "nameLocation": "637:19:15",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "606:27:17",
+                  "scope": 1669,
+                  "src": "629:27:15",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -243,25 +267,26 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1683,
+                    "id": 1655,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "606:7:17",
+                    "src": "629:7:15",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 },
                 {
                   "constant": false,
-                  "id": 1686,
+                  "id": 1658,
+                  "mutability": "mutable",
                   "name": "_totalBorrowsVariable",
+                  "nameLocation": "675:21:15",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "643:29:17",
+                  "scope": 1669,
+                  "src": "667:29:15",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -269,25 +294,26 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1685,
+                    "id": 1657,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "643:7:17",
+                    "src": "667:7:15",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 },
                 {
                   "constant": false,
-                  "id": 1688,
+                  "id": 1660,
+                  "mutability": "mutable",
                   "name": "_averageStableBorrowRate",
+                  "nameLocation": "715:24:15",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "682:32:17",
+                  "scope": 1669,
+                  "src": "707:32:15",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -295,32 +321,33 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1687,
+                    "id": 1659,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "682:7:17",
+                    "src": "707:7:15",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "536:179:17"
+              "src": "556:184:15"
             },
             "returnParameters": {
-              "id": 1696,
+              "id": 1668,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1691,
+                  "id": 1663,
+                  "mutability": "mutable",
                   "name": "liquidityRate",
+                  "nameLocation": "787:13:15",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "751:21:17",
+                  "scope": 1669,
+                  "src": "779:21:15",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -328,25 +355,26 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1690,
+                    "id": 1662,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "751:7:17",
+                    "src": "779:7:15",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 },
                 {
                   "constant": false,
-                  "id": 1693,
+                  "id": 1665,
+                  "mutability": "mutable",
                   "name": "stableBorrowRate",
+                  "nameLocation": "810:16:15",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "774:24:17",
+                  "scope": 1669,
+                  "src": "802:24:15",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -354,25 +382,26 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1692,
+                    "id": 1664,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "774:7:17",
+                    "src": "802:7:15",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 },
                 {
                   "constant": false,
-                  "id": 1695,
+                  "id": 1667,
+                  "mutability": "mutable",
                   "name": "variableBorrowRate",
+                  "nameLocation": "836:18:15",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "800:26:17",
+                  "scope": 1669,
+                  "src": "828:26:15",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -380,387 +409,59 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1694,
+                    "id": 1666,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "800:7:17",
+                    "src": "828:7:15",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "750:77:17"
+              "src": "778:77:15"
             },
-            "scope": 1698,
-            "src": "505:323:17",
+            "scope": 1670,
+            "src": "525:331:15",
             "stateMutability": "view",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 1699,
-        "src": "149:681:17"
+        "scope": 1671,
+        "src": "157:702:15",
+        "usedErrors": [],
+        "usedEvents": []
       }
     ],
-    "src": "0:831:17"
-  },
-  "legacyAST": {
-    "absolutePath": "/src/contracts/interfaces/IReserveInterestRateStrategy.sol",
-    "exportedSymbols": {
-      "IReserveInterestRateStrategy": [
-        1698
-      ]
-    },
-    "id": 1699,
-    "nodeType": "SourceUnit",
-    "nodes": [
-      {
-        "id": 1673,
-        "literals": [
-          "solidity",
-          "^",
-          "0.5",
-          ".0"
-        ],
-        "nodeType": "PragmaDirective",
-        "src": "0:23:17"
-      },
-      {
-        "baseContracts": [],
-        "contractDependencies": [],
-        "contractKind": "interface",
-        "documentation": "@title IReserveInterestRateStrategyInterface interface\n@notice Interface for the calculation of the interest rates.",
-        "fullyImplemented": false,
-        "id": 1698,
-        "linearizedBaseContracts": [
-          1698
-        ],
-        "name": "IReserveInterestRateStrategy",
-        "nodeType": "ContractDefinition",
-        "nodes": [
-          {
-            "body": null,
-            "documentation": "@dev returns the base variable borrow rate, in rays",
-            "id": 1678,
-            "implemented": false,
-            "kind": "function",
-            "modifiers": [],
-            "name": "getBaseVariableBorrowRate",
-            "nodeType": "FunctionDefinition",
-            "parameters": {
-              "id": 1674,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "303:2:17"
-            },
-            "returnParameters": {
-              "id": 1677,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 1676,
-                  "name": "",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 1678,
-                  "src": "329:7:17",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 1675,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "329:7:17",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                }
-              ],
-              "src": "328:9:17"
-            },
-            "scope": 1698,
-            "src": "269:69:17",
-            "stateMutability": "view",
-            "superFunction": null,
-            "visibility": "external"
-          },
-          {
-            "body": null,
-            "documentation": "@dev calculates the liquidity, stable, and variable rates depending on the current utilization rate\n     and the base parameters\n    ",
-            "id": 1697,
-            "implemented": false,
-            "kind": "function",
-            "modifiers": [],
-            "name": "calculateInterestRates",
-            "nodeType": "FunctionDefinition",
-            "parameters": {
-              "id": 1689,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 1680,
-                  "name": "_reserve",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "546:16:17",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  },
-                  "typeName": {
-                    "id": 1679,
-                    "name": "address",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "546:7:17",
-                    "stateMutability": "nonpayable",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 1682,
-                  "name": "_utilizationRate",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "572:24:17",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 1681,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "572:7:17",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 1684,
-                  "name": "_totalBorrowsStable",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "606:27:17",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 1683,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "606:7:17",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 1686,
-                  "name": "_totalBorrowsVariable",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "643:29:17",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 1685,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "643:7:17",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 1688,
-                  "name": "_averageStableBorrowRate",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "682:32:17",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 1687,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "682:7:17",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                }
-              ],
-              "src": "536:179:17"
-            },
-            "returnParameters": {
-              "id": 1696,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 1691,
-                  "name": "liquidityRate",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "751:21:17",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 1690,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "751:7:17",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 1693,
-                  "name": "stableBorrowRate",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "774:24:17",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 1692,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "774:7:17",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 1695,
-                  "name": "variableBorrowRate",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 1697,
-                  "src": "800:26:17",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 1694,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "800:7:17",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                }
-              ],
-              "src": "750:77:17"
-            },
-            "scope": 1698,
-            "src": "505:323:17",
-            "stateMutability": "view",
-            "superFunction": null,
-            "visibility": "external"
-          }
-        ],
-        "scope": 1699,
-        "src": "149:681:17"
-      }
-    ],
-    "src": "0:831:17"
+    "src": "0:861:15"
   },
   "compiler": {
     "name": "solc",
-    "version": "0.5.14+commit.01f1aaa4.Emscripten.clang"
+    "version": "0.8.24+commit.e11b9ed9.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.0.11",
-  "updatedAt": "2020-01-09T12:41:06.651Z",
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2024-02-11T21:41:58.635Z",
   "devdoc": {
+    "kind": "dev",
     "methods": {
       "calculateInterestRates(address,uint256,uint256,uint256,uint256)": {
-        "details": "calculates the liquidity, stable, and variable rates depending on the current utilization rate     and the base parameters    "
+        "details": "calculates the liquidity, stable, and variable rates depending on the current utilization rate      and the base parameters"
       },
       "getBaseVariableBorrowRate()": {
         "details": "returns the base variable borrow rate, in rays"
       }
     },
-    "title": "IReserveInterestRateStrategyInterface interface"
+    "title": "IReserveInterestRateStrategyInterface interface",
+    "version": 1
   },
   "userdoc": {
+    "kind": "user",
     "methods": {},
-    "notice": "Interface for the calculation of the interest rates."
+    "notice": "Interface for the calculation of the interest rates.",
+    "version": 1
   }
 }

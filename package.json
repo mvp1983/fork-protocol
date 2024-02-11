@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@nomiclabs/hardhat-truffle5": "^2.0.7",
+    "hardhat": "^2.19.5"
+  },
+  "dependencies": {
+    "openzeppelin-solidity": "^3.4.2"
+  }
+}

@@ -2,7 +2,6 @@
   "contractName": "IERC20DetailedBytes",
   "abi": [
     {
-      "constant": true,
       "inputs": [],
       "name": "decimals",
       "outputs": [
@@ -12,12 +11,10 @@
           "type": "uint256"
         }
       ],
-      "payable": false,
       "stateMutability": "view",
       "type": "function"
     },
     {
-      "constant": true,
       "inputs": [],
       "name": "name",
       "outputs": [
@@ -27,12 +24,10 @@
           "type": "bytes32"
         }
       ],
-      "payable": false,
       "stateMutability": "view",
       "type": "function"
     },
     {
-      "constant": true,
       "inputs": [],
       "name": "symbol",
       "outputs": [
@@ -42,59 +37,66 @@
           "type": "bytes32"
         }
       ],
-      "payable": false,
       "stateMutability": "view",
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.14+commit.01f1aaa4\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/src/contracts/misc/IERC20DetailedBytes.sol\":\"IERC20DetailedBytes\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/src/contracts/misc/IERC20DetailedBytes.sol\":{\"keccak256\":\"0x31d93e6e180a8e8cba665d26104031225ccad966cdc2fb5639bd66cfaeb95697\",\"urls\":[\"bzz-raw://6a57f36c8f3051f980bd0cc7820068bb2733791227c34abdbff83a46f0d32d81\",\"dweb:/ipfs/QmcF5QJG9CnX3PdYBMuzUCxXkc3tzPK9PFqvZxNwjY4ZT4\"]}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b5060ac8061001f6000396000f3fe6080604052348015600f57600080fd5b5060043610603c5760003560e01c806306fdde03146041578063313ce56714605957806395d89b4114605f575b600080fd5b60476065565b60408051918252519081900360200190f35b6047606b565b60476071565b60005481565b60025481565b6001548156fea265627a7a72315820de7625dd554406d074323103c69c96b990b259410cb4ec86eb2b359f2ae3c7f564736f6c634300050e0032",
-  "deployedBytecode": "0x6080604052348015600f57600080fd5b5060043610603c5760003560e01c806306fdde03146041578063313ce56714605957806395d89b4114605f575b600080fd5b60476065565b60408051918252519081900360200190f35b6047606b565b60476071565b60005481565b60025481565b6001548156fea265627a7a72315820de7625dd554406d074323103c69c96b990b259410cb4ec86eb2b359f2ae3c7f564736f6c634300050e0032",
-  "sourceMap": "25:119:37:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;25:119:37;;;;;;;",
-  "deployedSourceMap": "25:119:37:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;25:119:37;;;;;;;;;;;;;;;;;;;;;;;;;;;;;60:21;;;:::i;:::-;;;;;;;;;;;;;;;;116:25;;;:::i;87:23::-;;;:::i;60:21::-;;;;:::o;116:25::-;;;;:::o;87:23::-;;;;:::o",
-  "source": "pragma solidity ^0.5.0;\n\ncontract IERC20DetailedBytes {\n    bytes32  public  name;\n    bytes32  public  symbol;\n    uint256  public  decimals;\n}\n",
-  "sourcePath": "/src/contracts/misc/IERC20DetailedBytes.sol",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/misc/IERC20DetailedBytes.sol\":\"IERC20DetailedBytes\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"project:/contracts/misc/IERC20DetailedBytes.sol\":{\"keccak256\":\"0x82dd3304311e8c53cbb2fa4cc5eb17b260ce69b7b57a0904c6df3b5c730f6eef\",\"urls\":[\"bzz-raw://71cbf7ba9ba85fc762017a8b518a8b26bee3f8bd2e819bf79113be92569bdb7e\",\"dweb:/ipfs/QmR2nHf1KCr2DSaPoZJJsrGBgmDs5hBU9Lf3qXarT7bKB5\"]}},\"version\":1}",
+  "bytecode": "0x608080604052346100155760c0908161001a8239f35b5f80fdfe60808060405260043610156011575f80fd5b5f3560e01c90816306fdde0314607357508063313ce567146058576395d89b41146039575f80fd5b346054575f3660031901126054576020600154604051908152f35b5f80fd5b346054575f3660031901126054576020600254604051908152f35b346054575f3660031901126054576020905f548152f3fea2646970667358221220b0f6b01959b1d719d3656f5a5b47c4b04d89e829ca3d212eb8dd72c3669f7a1864736f6c63430008180033",
+  "deployedBytecode": "0x60808060405260043610156011575f80fd5b5f3560e01c90816306fdde0314607357508063313ce567146058576395d89b41146039575f80fd5b346054575f3660031901126054576020600154604051908152f35b5f80fd5b346054575f3660031901126054576020600254604051908152f35b346054575f3660031901126054576020905f548152f3fea2646970667358221220b0f6b01959b1d719d3656f5a5b47c4b04d89e829ca3d212eb8dd72c3669f7a1864736f6c63430008180033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "28:123:35:-:0;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "28:123:35:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;28:123:35;;;;;92:23;28:123;;;;;;;;;;;;;;;;;-1:-1:-1;;28:123:35;;;;;122:25;28:123;;;;;;;;;;;;;-1:-1:-1;;28:123:35;;;;;;;;;;",
+  "source": "pragma solidity ^0.8.24;\r\n\r\ncontract IERC20DetailedBytes {\r\n    bytes32  public  name;\r\n    bytes32  public  symbol;\r\n    uint256  public  decimals;\r\n}\r\n",
+  "sourcePath": "C:\\Proj\\fork-protocol\\contracts\\misc\\IERC20DetailedBytes.sol",
   "ast": {
-    "absolutePath": "/src/contracts/misc/IERC20DetailedBytes.sol",
+    "absolutePath": "project:/contracts/misc/IERC20DetailedBytes.sol",
     "exportedSymbols": {
       "IERC20DetailedBytes": [
-        11391
+        11591
       ]
     },
-    "id": 11392,
+    "id": 11592,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 11384,
+        "id": 11584,
         "literals": [
           "solidity",
           "^",
-          "0.5",
-          ".0"
+          "0.8",
+          ".24"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:23:37"
+        "src": "0:24:35"
       },
       {
+        "abstract": false,
         "baseContracts": [],
+        "canonicalName": "IERC20DetailedBytes",
         "contractDependencies": [],
         "contractKind": "contract",
-        "documentation": null,
         "fullyImplemented": true,
-        "id": 11391,
+        "id": 11591,
         "linearizedBaseContracts": [
-          11391
+          11591
         ],
         "name": "IERC20DetailedBytes",
+        "nameLocation": "37:19:35",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 11386,
+            "functionSelector": "06fdde03",
+            "id": 11586,
+            "mutability": "mutable",
             "name": "name",
+            "nameLocation": "81:4:35",
             "nodeType": "VariableDeclaration",
-            "scope": 11391,
-            "src": "60:21:37",
+            "scope": 11591,
+            "src": "64:21:35",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -102,25 +104,27 @@
               "typeString": "bytes32"
             },
             "typeName": {
-              "id": 11385,
+              "id": 11585,
               "name": "bytes32",
               "nodeType": "ElementaryTypeName",
-              "src": "60:7:37",
+              "src": "64:7:35",
               "typeDescriptions": {
                 "typeIdentifier": "t_bytes32",
                 "typeString": "bytes32"
               }
             },
-            "value": null,
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 11388,
+            "functionSelector": "95d89b41",
+            "id": 11588,
+            "mutability": "mutable",
             "name": "symbol",
+            "nameLocation": "109:6:35",
             "nodeType": "VariableDeclaration",
-            "scope": 11391,
-            "src": "87:23:37",
+            "scope": 11591,
+            "src": "92:23:35",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -128,25 +132,27 @@
               "typeString": "bytes32"
             },
             "typeName": {
-              "id": 11387,
+              "id": 11587,
               "name": "bytes32",
               "nodeType": "ElementaryTypeName",
-              "src": "87:7:37",
+              "src": "92:7:35",
               "typeDescriptions": {
                 "typeIdentifier": "t_bytes32",
                 "typeString": "bytes32"
               }
             },
-            "value": null,
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 11390,
+            "functionSelector": "313ce567",
+            "id": 11590,
+            "mutability": "mutable",
             "name": "decimals",
+            "nameLocation": "139:8:35",
             "nodeType": "VariableDeclaration",
-            "scope": 11391,
-            "src": "116:25:37",
+            "scope": 11591,
+            "src": "122:25:35",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -154,155 +160,41 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 11389,
+              "id": 11589,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "116:7:37",
+              "src": "122:7:35",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
               }
             },
-            "value": null,
             "visibility": "public"
           }
         ],
-        "scope": 11392,
-        "src": "25:119:37"
+        "scope": 11592,
+        "src": "28:123:35",
+        "usedErrors": [],
+        "usedEvents": []
       }
     ],
-    "src": "0:145:37"
-  },
-  "legacyAST": {
-    "absolutePath": "/src/contracts/misc/IERC20DetailedBytes.sol",
-    "exportedSymbols": {
-      "IERC20DetailedBytes": [
-        11391
-      ]
-    },
-    "id": 11392,
-    "nodeType": "SourceUnit",
-    "nodes": [
-      {
-        "id": 11384,
-        "literals": [
-          "solidity",
-          "^",
-          "0.5",
-          ".0"
-        ],
-        "nodeType": "PragmaDirective",
-        "src": "0:23:37"
-      },
-      {
-        "baseContracts": [],
-        "contractDependencies": [],
-        "contractKind": "contract",
-        "documentation": null,
-        "fullyImplemented": true,
-        "id": 11391,
-        "linearizedBaseContracts": [
-          11391
-        ],
-        "name": "IERC20DetailedBytes",
-        "nodeType": "ContractDefinition",
-        "nodes": [
-          {
-            "constant": false,
-            "id": 11386,
-            "name": "name",
-            "nodeType": "VariableDeclaration",
-            "scope": 11391,
-            "src": "60:21:37",
-            "stateVariable": true,
-            "storageLocation": "default",
-            "typeDescriptions": {
-              "typeIdentifier": "t_bytes32",
-              "typeString": "bytes32"
-            },
-            "typeName": {
-              "id": 11385,
-              "name": "bytes32",
-              "nodeType": "ElementaryTypeName",
-              "src": "60:7:37",
-              "typeDescriptions": {
-                "typeIdentifier": "t_bytes32",
-                "typeString": "bytes32"
-              }
-            },
-            "value": null,
-            "visibility": "public"
-          },
-          {
-            "constant": false,
-            "id": 11388,
-            "name": "symbol",
-            "nodeType": "VariableDeclaration",
-            "scope": 11391,
-            "src": "87:23:37",
-            "stateVariable": true,
-            "storageLocation": "default",
-            "typeDescriptions": {
-              "typeIdentifier": "t_bytes32",
-              "typeString": "bytes32"
-            },
-            "typeName": {
-              "id": 11387,
-              "name": "bytes32",
-              "nodeType": "ElementaryTypeName",
-              "src": "87:7:37",
-              "typeDescriptions": {
-                "typeIdentifier": "t_bytes32",
-                "typeString": "bytes32"
-              }
-            },
-            "value": null,
-            "visibility": "public"
-          },
-          {
-            "constant": false,
-            "id": 11390,
-            "name": "decimals",
-            "nodeType": "VariableDeclaration",
-            "scope": 11391,
-            "src": "116:25:37",
-            "stateVariable": true,
-            "storageLocation": "default",
-            "typeDescriptions": {
-              "typeIdentifier": "t_uint256",
-              "typeString": "uint256"
-            },
-            "typeName": {
-              "id": 11389,
-              "name": "uint256",
-              "nodeType": "ElementaryTypeName",
-              "src": "116:7:37",
-              "typeDescriptions": {
-                "typeIdentifier": "t_uint256",
-                "typeString": "uint256"
-              }
-            },
-            "value": null,
-            "visibility": "public"
-          }
-        ],
-        "scope": 11392,
-        "src": "25:119:37"
-      }
-    ],
-    "src": "0:145:37"
+    "src": "0:153:35"
   },
   "compiler": {
     "name": "solc",
-    "version": "0.5.14+commit.01f1aaa4.Emscripten.clang"
+    "version": "0.8.24+commit.e11b9ed9.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.0.11",
-  "updatedAt": "2020-01-09T12:41:06.753Z",
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2024-02-11T21:41:58.805Z",
   "devdoc": {
-    "methods": {}
+    "kind": "dev",
+    "methods": {},
+    "version": 1
   },
   "userdoc": {
-    "methods": {}
+    "kind": "user",
+    "methods": {},
+    "version": 1
   }
 }

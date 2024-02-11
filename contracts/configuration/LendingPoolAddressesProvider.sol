@@ -1,6 +1,6 @@
 pragma solidity ^0.8.24;
 
-import "openzeppelin-solidity/contracts/access/Ownable.sol";
+import "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "../libraries/openzeppelin-upgradeability/InitializableAdminUpgradeabilityProxy.sol";
 
 import "./AddressStorage.sol";
