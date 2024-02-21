@@ -915,7 +915,11 @@ contract LendingPool is ReentrancyGuard, VersionedInitializable {
             uint256 healthFactor
         )
     {
-        return dataProvider.getUserAccountData(_user);
+        (totalLiquidityETH, totalCollateralETH, totalBorrowsETH, totalFeesETH, availableBorrowsETH, currentLiquidationThreshold, ltv, healthFactor) = dataProvider.getUserAccountData(_user);
+        uint256 threshold = dataProvider.HEALTH_FACTOR_LIQUIDATION_THRESHOLD();
+        if (healthFactor >= threshold) {
+            return(0, 0, 0, 0, 0, 0, 0, threshold);
+        }
     }
 
     function getUserReserveData(address _reserve, address _user)
