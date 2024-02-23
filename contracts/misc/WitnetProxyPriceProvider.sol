@@ -3,38 +3,41 @@ pragma solidity ^0.8.24;
 import "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 import "../interfaces/IPriceOracleGetter.sol";
-import "../interfaces/IChainlinkAggregator.sol";
+import "../interfaces/IWitnetPriceRouter.sol";
 import "../libraries/EthAddressLib.sol";
 
-/// @title ChainlinkProxyPriceProvider
+/// @title WitnetProxyPriceProvider
 /// @author Aave
-/// @notice Proxy smart contract to get the price of an asset from a price source, with Chainlink Aggregator
+/// @notice Proxy smart contract to get the price of an asset from a price source, with Witnet Aggregator
 ///         smart contracts as primary option
-/// - If the returned price by a Chainlink aggregator is <= 0, the call is forwarded to a fallbackOracle
+/// - If the returned price by a Witnet aggregator is <= 0, the call is forwarded to a fallbackOracle
 /// - Owned by the Aave governance system, allowed to add sources for assets, replace them
 ///   and change the fallbackOracle
-contract ChainlinkProxyPriceProvider is IPriceOracleGetter, Ownable {
+contract WitnetProxyPriceProvider is IPriceOracleGetter, Ownable {
 
-    event AssetSourceUpdated(address indexed asset, address indexed source);
-    event FallbackOracleUpdated(address indexed fallbackOracle);
+    event AssetSourceUpdated(address asset, bytes32 source);
+    event FallbackOracleUpdated(address fallbackOracle);
+    event WitnetPriceRouterUpdated(address witnetPriceRouter);
 
-    mapping(address => IChainlinkAggregator) private assetsSources;
+    //witnet assetId
+    mapping(address => bytes32) private assetsSources;
     IPriceOracleGetter private fallbackOracle;
-
+    IWitnetPriceRouter private priceRouter; 
     /// @notice Constructor
     /// @param _assets The addresses of the assets
     /// @param _sources The address of the source of each asset
     /// @param _fallbackOracle The address of the fallback oracle to use if the data of an
     ///        aggregator is not consistent
-    constructor(address[] memory _assets, address[] memory _sources, address _fallbackOracle) Ownable(msg.sender){
+    constructor(address[] memory _assets, bytes32[] memory _sources, address _fallbackOracle, address _witnetPriceRouter) Ownable(msg.sender){
         internalSetFallbackOracle(_fallbackOracle);
         internalSetAssetsSources(_assets, _sources);
+        internalSetWitnetPriceRouter(_witnetPriceRouter);
     }
 
     /// @notice External function called by the Aave governance to set or replace sources of assets
     /// @param _assets The addresses of the assets
     /// @param _sources The address of the source of each asset
-    function setAssetSources(address[] calldata _assets, address[] calldata _sources) external onlyOwner {
+    function setAssetSources(address[] calldata _assets, bytes32[] calldata _sources) external onlyOwner {
         internalSetAssetsSources(_assets, _sources);
     }
 
@@ -45,13 +48,20 @@ contract ChainlinkProxyPriceProvider is IPriceOracleGetter, Ownable {
         internalSetFallbackOracle(_fallbackOracle);
     }
 
+    /// @notice Set the WitnetPriceRouter
+    /// - Callable only by the Aave governance
+    /// @param _witnetPriceRouter The address of the WitnetPriceRouter
+    function setWitnetPriceRouter(address _witnetPriceRouter) external onlyOwner {
+        internalSetWitnetPriceRouter(_witnetPriceRouter);
+    }
+ 
     /// @notice Internal function to set the sources for each asset
     /// @param _assets The addresses of the assets
     /// @param _sources The address of the source of each asset
-    function internalSetAssetsSources(address[] memory _assets, address[] memory _sources) internal {
+    function internalSetAssetsSources(address[] memory _assets, bytes32[] memory _sources) internal {
         require(_assets.length == _sources.length, "INCONSISTENT_PARAMS_LENGTH");
         for (uint256 i = 0; i < _assets.length; i++) {
-            assetsSources[_assets[i]] = IChainlinkAggregator(_sources[i]);
+            assetsSources[_assets[i]] = _sources[i];
             emit AssetSourceUpdated(_assets[i], _sources[i]);
         }
     }
@@ -63,18 +73,26 @@ contract ChainlinkProxyPriceProvider is IPriceOracleGetter, Ownable {
         emit FallbackOracleUpdated(_fallbackOracle);
     }
 
+    /// @notice Internal function to set the WitnetPriceRouter
+    /// @param _witnetPriceRouter The address of th WitnetPriceRouter
+    function internalSetWitnetPriceRouter(address _witnetPriceRouter) internal {
+        priceRouter = IWitnetPriceRouter(_witnetPriceRouter);
+        emit WitnetPriceRouterUpdated(_witnetPriceRouter);
+    }
+
+
     /// @notice Gets an asset price by address
     /// @param _asset The asset address
     function getAssetPrice(address _asset) public view returns(uint256) {
-        IChainlinkAggregator source = assetsSources[_asset];
+        bytes32 sourceId = assetsSources[_asset];
         if (_asset == EthAddressLib.ethAddress()) {
             return 1 ether;
         } else {
             // If there is no registered source for the asset, call the fallbackOracle
-            if (address(source) == address(0)) {
+            if (sourceId == bytes32(0)) {
                 return IPriceOracleGetter(fallbackOracle).getAssetPrice(_asset);
             } else {
-                int256 _price = IChainlinkAggregator(source).latestAnswer();
+                (int256 _price,,) = priceRouter.valueFor(sourceId);
                 if (_price > 0) {
                     return uint256(_price);
                 } else {
@@ -98,7 +116,7 @@ contract ChainlinkProxyPriceProvider is IPriceOracleGetter, Ownable {
     /// @param _asset The address of the asset
     /// @return address The address of the source
     function getSourceOfAsset(address _asset) external view returns(address) {
-        return address(assetsSources[_asset]);
+        return address(priceRouter);//address(assetsSources[_asset]);
     }
 
     /// @notice Gets the address of the fallback oracle
